@@ -21,6 +21,8 @@ contract EpicNFT is ERC721URIStorage {
   string[] secondWords = ["eats", "loves", "hates", "hugs", "is", "dislikes", "likes", "breaks", "throws", "smashes", "sells", "collects", "mints"];
   string[] thirdWords = ["Apples", "Apricots", "Avocados", "Bananas", "Blueberries", "Cherries", "Cranberries", "Cucumbers", "Grapes", "Grapefruit", "Kiwis", "Lemons", "Limes", "Mangos", "Melons", "Nectarines", "Oranges", "Pears", "Pineapples", "Plums", "Raspberries", "Strawberries", "Tomatoes", "Watermelons"];
 
+  event NewEpicNFTMinted(address sender, uint256 tokenId);
+
   constructor() ERC721 ("SquareNFT", "SQUARE") {
     console.log("This is my NFT contract. Woah!");
   }
@@ -97,5 +99,8 @@ contract EpicNFT is ERC721URIStorage {
 
     // Increment the counter for when the next NFT is minted.
     _tokenIds.increment();
+
+    // Emit the NewEpicNFTMinted event.
+    emit NewEpicNFTMinted(msg.sender, newItemId);
   }
 }
