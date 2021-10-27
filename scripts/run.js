@@ -12,8 +12,11 @@ async function main() {
 
   console.log("Contract deployed to:", epic.address);
 
-  let txn = await epic.makeAnEpicNFT()
+  const txn = await epic.makeAnEpicNFT()
   await txn.wait() // Wait for it to be mined.
+
+  const num = await epic.getTotalNFTsMintedSoFar()
+  console.log("Total minted NFTs so far: ", Number(num))
 }
 
 main()

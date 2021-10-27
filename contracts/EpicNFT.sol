@@ -11,20 +11,32 @@ contract EpicNFT is ERC721URIStorage {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  // This is our SVG code. All we need to change is the word that's displayed. Everything else stays the same.
-  // So, we make a baseSvg variable here that all our NFTs can use.
-  string baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+  uint private constant MAX_NFT_TO_MINT = 50;
+  uint public totalNftsMinted = 0;
+
+  string svgPartOne = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='";
+  string svgPartTwo = "'/><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
 
   // I create three arrays, each with their own theme of random words.
   // Pick some random funny words, names of anime characters, foods you like, whatever!
   string[] firstWords = ["Bulbasaur", "Charmander", "Squirtle", "Mewtwo", "Mew", "Dragonite", "Froakie", "Eevee", "Pikachu", "Ditto", "Celebi", "Psyduck", "Slowpoke", "Piplup", "Magikarp"];
   string[] secondWords = ["eats", "loves", "hates", "hugs", "is", "dislikes", "likes", "breaks", "throws", "smashes", "sells", "collects", "mints"];
   string[] thirdWords = ["Apples", "Apricots", "Avocados", "Bananas", "Blueberries", "Cherries", "Cranberries", "Cucumbers", "Grapes", "Grapefruit", "Kiwis", "Lemons", "Limes", "Mangos", "Melons", "Nectarines", "Oranges", "Pears", "Pineapples", "Plums", "Raspberries", "Strawberries", "Tomatoes", "Watermelons"];
+  string[] colors = ["red", "#08C2A8", "black", "yellow", "blue", "green"];
 
   event NewEpicNFTMinted(address sender, uint256 tokenId);
 
+  modifier checkTotalNftsMinted() {
+    require(totalNftsMinted < MAX_NFT_TO_MINT, "All available NFTs have been minted!");
+    _;
+  }
+
   constructor() ERC721 ("SquareNFT", "SQUARE") {
-    console.log("This is my NFT contract. Woah!");
+    console.log("Created SquareNFT contract!");
+  }
+
+  function getTotalNFTsMintedSoFar() public view returns (uint) {
+    return totalNftsMinted;
   }
 
   // I create a function to randomly pick a word from each array.
@@ -48,11 +60,17 @@ contract EpicNFT is ERC721URIStorage {
     return thirdWords[rand];
   }
 
+  function pickRandomColor(uint256 tokenId) public view returns (string memory) {
+    uint256 rand = random(string(abi.encodePacked("COLOR", Strings.toString(tokenId))));
+    rand = rand % colors.length;
+    return colors[rand];
+  }
+
   function random(string memory input) internal pure returns (uint256) {
       return uint256(keccak256(abi.encodePacked(input)));
   }
 
-  function makeAnEpicNFT() public {
+  function makeAnEpicNFT() public checkTotalNftsMinted {
      // Get the current tokenId, this starts at 0.
     uint256 newItemId = _tokenIds.current();
 
@@ -61,8 +79,8 @@ contract EpicNFT is ERC721URIStorage {
     string memory second = pickRandomSecondWord(newItemId);
     string memory third = pickRandomThirdWord(newItemId);
     string memory combinedWord = string(abi.encodePacked(first, " ", second, " ", third));
-
-    string memory finalSvg = string(abi.encodePacked(baseSvg, combinedWord, "</text></svg>"));
+    string memory randomColor = pickRandomColor(newItemId);
+    string memory finalSvg = string(abi.encodePacked(svgPartOne, randomColor, svgPartTwo, combinedWord, "</text></svg>"));
 
     string memory json = Base64.encode(
       bytes(
@@ -99,6 +117,7 @@ contract EpicNFT is ERC721URIStorage {
 
     // Increment the counter for when the next NFT is minted.
     _tokenIds.increment();
+    totalNftsMinted += 1;
 
     // Emit the NewEpicNFTMinted event.
     emit NewEpicNFTMinted(msg.sender, newItemId);

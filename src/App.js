@@ -10,8 +10,7 @@ const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_LINK = 'https://testnets.opensea.io/assets';
 // eslint-disable-next-line
 const TOTAL_MINT_COUNT = 50;
-
-const CONTRACT_ADDRESS = "0xE2b7C16dCFdDB5bC8343382887Bcec5510e3D046";
+const CONTRACT_ADDRESS = "0x27a0B56e7A181b3A985E0805EC16C15BAaF78B59";
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
