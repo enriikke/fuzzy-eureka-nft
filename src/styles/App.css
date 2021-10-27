@@ -7,10 +7,12 @@
 
 .container {
   height: 100%;
+  height: 100vh;
   background-color: #0d1116;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
 }
 
 .header-container {
@@ -54,6 +56,12 @@
   animation: gradient-animation 4s ease infinite;
 }
 
+.cta-button:disabled,
+.cta-button[disabled]{
+  cursor: not-allowed;
+  background: gray;
+}
+
 .mint-button {
   background: -webkit-linear-gradient(left, #a200d6, #ff6fdf);
   background-size: 200% 200%;
@@ -65,10 +73,25 @@
   background-color: rgb(32, 129, 226);
 }
 
+.mint-count-container {
+  margin-top: 25px;
+  margin-bottom: 10px;
+}
+
 .mint-count {
   color: white;
   font-size: 18px;
   font-weight: bold;
+}
+
+.collection-link {
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.collection-link:hover {
+  color: palegreen;
 }
 
 .footer-container {
@@ -76,6 +99,7 @@
   justify-content: center;
   align-items: center;
   padding-bottom: 30px;
+  margin-top: 75px;
 }
 
 .twitter-logo {

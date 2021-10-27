@@ -5,15 +5,18 @@ import { ethers } from 'ethers';
 import epicNft from './utils/EpicNFT.json';
 
 // Constants
-const TWITTER_HANDLE = '_buildspace';
+const TWITTER_HANDLE = 'enriikke';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 const OPENSEA_LINK = 'https://testnets.opensea.io/assets';
-// eslint-disable-next-line
+const COLLECTION_LINK = 'https://testnets.opensea.io/collection/squarenft-auvdfw9qrp'
 const TOTAL_MINT_COUNT = 50;
 const CONTRACT_ADDRESS = "0x27a0B56e7A181b3A985E0805EC16C15BAaF78B59";
+const RINKEBY_CHAIN_ID = "0x4";
 
 const App = () => {
   const [currentAccount, setCurrentAccount] = useState("");
+  const [isMinting, setIsMinting] = React.useState(false);
+  const [mintCount, setMintCount] = React.useState(0);
 
   const checkIfWalletIsConnected = async () => {
     /*
@@ -39,6 +42,20 @@ const App = () => {
     }
   }
 
+  const checkMintCount = async () => {
+    try {
+      const network = ethers.providers.getNetwork("rinkeby");
+      const provider = ethers.getDefaultProvider(network);
+      const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, epicNft.abi, provider);
+
+      const num = await connectedContract.getTotalNFTsMintedSoFar();
+      setMintCount(Number(num));
+      console.log("Updated mint count!");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
@@ -59,6 +76,14 @@ const App = () => {
       console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
       setupEventListener()
+
+      let chainId = await ethereum.request({ method: 'eth_chainId' });
+      console.log("Connected to chain " + chainId);
+
+      // String, hex code of the chainId of the Rinkebey test network
+      if (chainId !== RINKEBY_CHAIN_ID) {
+        alert("You are not connected to the Rinkeby Test Network!");
+      }
     } catch (error) {
       console.log(error)
     }
@@ -94,6 +119,8 @@ const App = () => {
   }
 
   const askContractToMintNft = async () => {
+    setIsMinting(true);
+
     try {
       const { ethereum } = window;
 
@@ -109,17 +136,20 @@ const App = () => {
         await nftTxn.wait();
 
         console.log(`Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
-
       } else {
         console.log("Ethereum object doesn't exist!");
       }
     } catch (error) {
       console.log(error)
     }
+
+    setIsMinting(false);
 }
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    checkMintCount();
+  // eslint-disable-next-line
   }, [])
 
   const renderCTA = () => {
@@ -131,8 +161,8 @@ const App = () => {
       );
     } else {
       return (
-        <button onClick={askContractToMintNft} className="cta-button connect-wallet-button">
-          Mint NFT
+        <button onClick={askContractToMintNft} className="cta-button connect-wallet-button" disabled={isMinting}>
+          {isMinting ? 'Minting...' : 'Mint NFT'}
         </button>
       );
     }
@@ -148,6 +178,19 @@ const App = () => {
           </p>
           {renderCTA()}
         </div>
+
+        <div className="mint-count-container">
+          <p className="mint-count">
+            {mintCount}/{TOTAL_MINT_COUNT} NFTs minted so far!
+          </p>
+        </div>
+
+        <div>
+          <a className="collection-link" href={COLLECTION_LINK} target="_blank" rel="noreferrer">
+            🌊 View Collection on OpenSea
+          </a>
+        </div>
+
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
           <a
@@ -155,7 +198,7 @@ const App = () => {
             href={TWITTER_LINK}
             target="_blank"
             rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          >{`built by @${TWITTER_HANDLE}`}</a>
         </div>
       </div>
     </div>
